@@ -1,18 +1,14 @@
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class Model : MonoBehaviour
 {
-    List<Vector3> vertices = new List<Vector3>();
-    List<Vector3Int> faces = new List<Vector3Int>();
-    List<Vector2> textureCoordinates = new List<Vector2>();
-    List<Vector3Int> textureIndexList = new List<Vector3Int>();
-    List<Vector3> normals = new List<Vector3>();
-    
-    void Start()
-    {
-        CreateUnityGameObject();
-    }
+    internal List<Vector3> vertices = new List<Vector3>();
+    internal List<Vector3Int> faces = new List<Vector3Int>();
+    internal List<Vector2> textureCoordinates = new List<Vector2>();
+    internal List<Vector3Int> textureIndexList = new List<Vector3Int>();
+    internal List<Vector3> normals = new List<Vector3>();
 
     public GameObject CreateUnityGameObject()
     {
