@@ -9,22 +9,59 @@ public class Pipeline : MonoBehaviour
     Model model;
 
     float angle = 0;
-    Vector3 axis = new Vector3(0, 0, 0);
+    Vector3 axis = new Vector3();
+    Vector3 scale = new Vector3();
+    Vector3 translation = new Vector3();
+
+    Vector3 camPos = new Vector3();
+    Vector3 camLookAt = new Vector3();
+    Vector3 camUp = new Vector3();
 
     void Start()
     {
         model = gameObject.AddComponent<Model>();
         model.CreateUnityGameObject();
 
-        PrintToFileVertices(model.vertices);
+        TransformMatrix();
+
+        camPos = new Vector3(18, 4, 51);
+        camLookAt = new Vector3(1, 4, 1);
+        camUp = new Vector3(2, 1, 16);
+
+        Matrix4x4 viewMatrix = Matrix4x4.LookAt(camPos, camLookAt, camUp);
+    }
+
+    private void TransformMatrix()
+    {
+        //PrintToFileVertices(model.vertices);
 
         angle = -10;
         axis = new Vector3(16, 1, 1).normalized;
         Matrix4x4 rotMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.AngleAxis(angle, axis), Vector3.one);
-        PrintToFileMatrix(rotMatrix);
+        //PrintToFileMatrix(rotMatrix);
 
         List<Vector3> imageAfterRot = GetImage(model.vertices, rotMatrix);
-        PrintToFileVertices(imageAfterRot);
+        //PrintToFileVertices(imageAfterRot);
+
+        scale = new Vector3(4, 3, 1);
+        Matrix4x4 scaleMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
+        // PrintToFileMatrix(scaleMatrix);
+
+        List<Vector3> imageAfterScale = GetImage(imageAfterRot, scaleMatrix);
+        //PrintToFileVertices(imageAfterScale);
+
+        translation = new Vector3(-5, -1, 2);
+        Matrix4x4 translationMatrix = Matrix4x4.TRS(translation, Quaternion.identity, Vector3.one);
+        //PrintToFileMatrix(translationMatrix);
+
+        List<Vector3> imageAfterTranslation = GetImage(imageAfterScale, translationMatrix);
+        //PrintToFileVertices(imageAfterTranslation);
+
+        Matrix4x4 transformMatrix = translationMatrix * scaleMatrix * rotMatrix;
+        //PrintToFileMatrix(transformMatrix);
+
+        List<Vector3> imageAfterTransform = GetImage(model.vertices, transformMatrix);
+        //PrintToFileVertices(imageAfterTransform);
     }
 
     #region Write to File
