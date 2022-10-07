@@ -17,21 +17,41 @@ public class Pipeline : MonoBehaviour
     Vector3 camLookAt = new Vector3();
     Vector3 camUp = new Vector3();
 
+    float projection = 0;
+
     void Start()
     {
         model = gameObject.AddComponent<Model>();
         model.CreateUnityGameObject();
 
         TransformMatrix();
+        ViewingMatrix();
+        ProjectionMatrix();
+    }
 
+    #region Matrix
+
+    private void ProjectionMatrix()
+    {
+        projection = -1;
+        
+    }
+
+    private List<Vector3> ViewingMatrix()
+    {
         camPos = new Vector3(18, 4, 51);
         camLookAt = new Vector3(1, 4, 1);
         camUp = new Vector3(2, 1, 16);
-
         Matrix4x4 viewMatrix = Matrix4x4.LookAt(camPos, camLookAt, camUp);
+        PrintToFileMatrix(viewMatrix);
+        
+        List<Vector3> imageAfterViewing = GetImage(TransformMatrix(), viewMatrix);
+        PrintToFileVertices(imageAfterViewing);
+
+        return imageAfterViewing;
     }
 
-    private void TransformMatrix()
+        private List<Vector3> TransformMatrix()
     {
         //PrintToFileVertices(model.vertices);
 
@@ -62,7 +82,21 @@ public class Pipeline : MonoBehaviour
 
         List<Vector3> imageAfterTransform = GetImage(model.vertices, transformMatrix);
         //PrintToFileVertices(imageAfterTransform);
+
+        return imageAfterTransform;
     }
+
+    private List<Vector3> GetImage(List<Vector3> vertices, Matrix4x4 transMatrix)
+    {
+        List<Vector3> imageVertices = new List<Vector3>();
+        foreach (Vector3 v in vertices)
+        {
+            imageVertices.Add(transMatrix * v);
+        }
+        return imageVertices;
+    }
+
+    #endregion
 
     #region Write to File
 
@@ -73,7 +107,7 @@ public class Pipeline : MonoBehaviour
         sw.WriteLine("Vertices");
         foreach (Vector3 p in vertices)
         {
-            sw.WriteLine(p.x + "    ,   " + p.y + "    ,    " + p.z + "    ,    ");
+            sw.WriteLine(p.x + "    ,   " + p.y + "    ,    " + p.z);
         }
         sw.Close();
     }
@@ -89,20 +123,6 @@ public class Pipeline : MonoBehaviour
             sw.WriteLine(row.x + "    " + row.y + "    " + row.z + "    " + row.w);
         }
         sw.Close();
-    }
-
-    #endregion
-
-    #region Matrix
-
-    private List<Vector3> GetImage(List<Vector3> vertices, Matrix4x4 transMatrix)
-    {
-        List<Vector3> imageVertices = new List<Vector3>();
-        foreach (Vector3 v in vertices)
-        {
-            imageVertices.Add(transMatrix * v);
-        }
-        return imageVertices;
     }
 
     #endregion
