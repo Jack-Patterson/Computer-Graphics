@@ -1,8 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.IO;
+using UnityEngine;
 
 public class Pipeline : MonoBehaviour
 {
@@ -21,9 +19,9 @@ public class Pipeline : MonoBehaviour
 
     void Start()
     {
-        model = gameObject.AddComponent<Model>();
+        model = new Model();
         model.CreateUnityGameObject();
-
+            
         TransformMatrix();
         ViewingMatrix();
         ProjectionMatrix();
@@ -33,8 +31,14 @@ public class Pipeline : MonoBehaviour
 
     private void ProjectionMatrix()
     {
-        projection = -1;
-        
+        projection = -1f;
+
+        List<Vector3> viewAfterProj = new List<Vector3>();
+        foreach (Vector3 v in ViewingMatrix())
+        {
+            viewAfterProj.Add(new Vector3(v.x, v.y, projection));
+        }
+        PrintToFileVertices(viewAfterProj);
     }
 
     private List<Vector3> ViewingMatrix()
@@ -43,15 +47,15 @@ public class Pipeline : MonoBehaviour
         camLookAt = new Vector3(1, 4, 1);
         camUp = new Vector3(2, 1, 16);
         Matrix4x4 viewMatrix = Matrix4x4.LookAt(camPos, camLookAt, camUp);
-        PrintToFileMatrix(viewMatrix);
-        
+        //PrintToFileMatrix(viewMatrix);
+
         List<Vector3> imageAfterViewing = GetImage(TransformMatrix(), viewMatrix);
-        PrintToFileVertices(imageAfterViewing);
+        //PrintToFileVertices(imageAfterViewing);
 
         return imageAfterViewing;
     }
 
-        private List<Vector3> TransformMatrix()
+    private List<Vector3> TransformMatrix()
     {
         //PrintToFileVertices(model.vertices);
 
@@ -86,12 +90,12 @@ public class Pipeline : MonoBehaviour
         return imageAfterTransform;
     }
 
-    private List<Vector3> GetImage(List<Vector3> vertices, Matrix4x4 transMatrix)
+    private List<Vector3> GetImage(List<Vector3> vertices, Matrix4x4 matrix)
     {
         List<Vector3> imageVertices = new List<Vector3>();
         foreach (Vector3 v in vertices)
         {
-            imageVertices.Add(transMatrix * v);
+            imageVertices.Add(matrix * v);
         }
         return imageVertices;
     }

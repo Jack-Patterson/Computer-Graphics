@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-public class Model : MonoBehaviour
+public class Model
 {
     internal List<Vector3> vertices = new List<Vector3>();
     internal List<Vector3Int> faces = new List<Vector3Int>();
@@ -10,12 +10,15 @@ public class Model : MonoBehaviour
     internal List<Vector3Int> textureIndexList = new List<Vector3Int>();
     internal List<Vector3> normals = new List<Vector3>();
 
-    public GameObject CreateUnityGameObject()
+    public Model()
     {
         AddVertices();
         AddFaces();
         AddNormals();
-        
+    }
+
+    public GameObject CreateUnityGameObject()
+    {
         Mesh mesh = new Mesh();
         GameObject newGO = new GameObject("ComputerGraphicsJ");
         MeshFilter meshFilter = newGO.AddComponent<MeshFilter>();
