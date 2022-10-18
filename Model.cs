@@ -4,14 +4,20 @@ using UnityEngine;
 
 public class Model
 {
-    internal List<Vector3> vertices = new List<Vector3>();
-    internal List<Vector3Int> faces = new List<Vector3Int>();
-    internal List<Vector2> textureCoordinates = new List<Vector2>();
-    internal List<Vector3Int> textureIndexList = new List<Vector3Int>();
-    internal List<Vector3> normals = new List<Vector3>();
+    internal List<Vector3> vertices;
+    internal List<Vector3Int> faces;
+    internal List<Vector2> textureCoordinates;
+    internal List<Vector3Int> textureIndexList;
+    internal List<Vector3> normals;
 
     public Model()
     {
+        vertices = new();
+        faces = new();
+        textureCoordinates = new();
+        textureIndexList = new();
+        normals = new();
+
         AddVertices();
         AddFaces();
         AddNormals();
@@ -24,10 +30,10 @@ public class Model
         MeshFilter meshFilter = newGO.AddComponent<MeshFilter>();
         MeshRenderer meshRenderer = newGO.AddComponent<MeshRenderer>();
 
-        List<Vector3> coordinates = new List<Vector3>();
-        List<int> dummyIndices = new List<int>();
-        List<Vector2> textCoordinates = new List<Vector2>();
-        List<Vector3> normalsNew = new List<Vector3>();
+        List<Vector3> coordinates = new();
+        List<int> dummyIndices = new();
+        List<Vector2> textCoordinates = new();
+        List<Vector3> normalsNew = new();
 
         for (int i = 0; i < faces.Count; i++)
         {
@@ -83,17 +89,26 @@ public class Model
         textureCoordinates.Add(new Vector2(510, 300));//24
         textureCoordinates.Add(new Vector2(440, 300));//25
         textureCoordinates.Add(new Vector2(440, 585));//26
-        textureCoordinates.Add(new Vector2(440, 665));//27
+        textureCoordinates.Add(new Vector2(440, 670));//27
         textureCoordinates.Add(new Vector2(360, 740));//28
 
         // Bottom
-        textureCoordinates.Add(new Vector2(0, 0));//29
-        textureCoordinates.Add(new Vector2(0, 0));//30
-        textureCoordinates.Add(new Vector2(0, 0));//31
-        textureCoordinates.Add(new Vector2(0, 0));//32
-        textureCoordinates.Add(new Vector2(0, 0));//33
+        textureCoordinates.Add(new Vector2(295, 740));//29
+        textureCoordinates.Add(new Vector2(80, 740));//30
 
+        // Left
+        textureCoordinates.Add(new Vector2(5, 665));//31
+        textureCoordinates.Add(new Vector2(5, 585));//32
+        textureCoordinates.Add(new Vector2(80, 515));//33
+        textureCoordinates.Add(new Vector2(220, 515));//34
+        textureCoordinates.Add(new Vector2(225, 300));//35
+        textureCoordinates.Add(new Vector2(150, 300));//36
+        textureCoordinates.Add(new Vector2(80, 220));//37
+        textureCoordinates.Add(new Vector2(80, 140));//38
 
+        // Top
+        textureCoordinates.Add(new Vector2(150, 65));//39
+        textureCoordinates.Add(new Vector2(510, 65));//40
 
         textureCoordinates = GetRelativeValues(textureCoordinates, 1024, 1024);
     }
@@ -131,34 +146,34 @@ public class Model
         faces.Add(new Vector3Int(23, 21, 19)); textureIndexList.Add(new Vector3Int(23, 21, 19));
 
         // Top
-        faces.Add(new Vector3Int(1, 13, 2)); textureIndexList.Add(new Vector3Int(1, 13, 2));
-        faces.Add(new Vector3Int(13, 14, 2)); textureIndexList.Add(new Vector3Int(13, 14, 2));
+        faces.Add(new Vector3Int(1, 13, 2)); textureIndexList.Add(new Vector3Int(1, 39, 2));
+        faces.Add(new Vector3Int(13, 14, 2)); textureIndexList.Add(new Vector3Int(39, 40, 2));
 
         // Bottom
-        faces.Add(new Vector3Int(23, 11, 9)); textureIndexList.Add(new Vector3Int(23, 11, 9));
-        faces.Add(new Vector3Int(23, 9, 21)); textureIndexList.Add(new Vector3Int(23, 9, 21));
-        faces.Add(new Vector3Int(9, 8, 21)); textureIndexList.Add(new Vector3Int(9, 8, 21));
-        faces.Add(new Vector3Int(8, 20, 21)); textureIndexList.Add(new Vector3Int(8, 20, 21));
+        faces.Add(new Vector3Int(23, 11, 9)); textureIndexList.Add(new Vector3Int(30, 11, 9));
+        faces.Add(new Vector3Int(23, 9, 21)); textureIndexList.Add(new Vector3Int(30, 9, 29));
+        faces.Add(new Vector3Int(9, 8, 21)); textureIndexList.Add(new Vector3Int(9, 8, 28));
+        faces.Add(new Vector3Int(8, 20, 21)); textureIndexList.Add(new Vector3Int(8, 27, 28));
 
         // Left
-        faces.Add(new Vector3Int(13, 1, 3)); textureIndexList.Add(new Vector3Int(13, 1, 3));
-        faces.Add(new Vector3Int(13, 3, 15)); textureIndexList.Add(new Vector3Int(13, 3, 15));
-        faces.Add(new Vector3Int(15, 3, 18)); textureIndexList.Add(new Vector3Int(15, 3, 18));
-        faces.Add(new Vector3Int(3, 4, 18)); textureIndexList.Add(new Vector3Int(3, 4, 18));
-        faces.Add(new Vector3Int(5, 7, 18)); textureIndexList.Add(new Vector3Int(5, 7, 18));
-        faces.Add(new Vector3Int(7, 19, 18)); textureIndexList.Add(new Vector3Int(7, 19, 18));
-        faces.Add(new Vector3Int(7, 10, 19)); textureIndexList.Add(new Vector3Int(7, 10, 19));
-        faces.Add(new Vector3Int(19, 10, 22)); textureIndexList.Add(new Vector3Int(19, 10, 22));
-        faces.Add(new Vector3Int(10, 11, 22)); textureIndexList.Add(new Vector3Int(10, 11, 22));
-        faces.Add(new Vector3Int(22, 11, 23)); textureIndexList.Add(new Vector3Int(22, 11, 23));
+        faces.Add(new Vector3Int(13, 1, 3)); textureIndexList.Add(new Vector3Int(38, 1, 3));
+        faces.Add(new Vector3Int(13, 3, 15)); textureIndexList.Add(new Vector3Int(38, 3, 37));
+        faces.Add(new Vector3Int(15, 3, 18)); textureIndexList.Add(new Vector3Int(36, 3, 35));
+        faces.Add(new Vector3Int(3, 5, 18)); textureIndexList.Add(new Vector3Int(3, 5, 35));
+        faces.Add(new Vector3Int(5, 7, 18)); textureIndexList.Add(new Vector3Int(5, 7, 35));
+        faces.Add(new Vector3Int(7, 19, 18)); textureIndexList.Add(new Vector3Int(7, 34, 35));
+        faces.Add(new Vector3Int(7, 10, 19)); textureIndexList.Add(new Vector3Int(7, 10, 34));
+        faces.Add(new Vector3Int(19, 10, 22)); textureIndexList.Add(new Vector3Int(34, 10, 33));
+        faces.Add(new Vector3Int(10, 11, 22)); textureIndexList.Add(new Vector3Int(10, 11, 32));
+        faces.Add(new Vector3Int(22, 11, 23)); textureIndexList.Add(new Vector3Int(32, 11, 31));
 
-        // Rights
+        // Right
         faces.Add(new Vector3Int(2, 14, 16)); textureIndexList.Add(new Vector3Int(2, 14, 16));
         faces.Add(new Vector3Int(2, 16, 4)); textureIndexList.Add(new Vector3Int(2, 16, 4));
-        faces.Add(new Vector3Int(4, 16, 17)); textureIndexList.Add(new Vector3Int(4, 16, 17));
-        faces.Add(new Vector3Int(6, 4, 17)); textureIndexList.Add(new Vector3Int(6, 4, 17));
-        faces.Add(new Vector3Int(6, 17, 20)); textureIndexList.Add(new Vector3Int(6, 17, 20));
-        faces.Add(new Vector3Int(6, 20, 8)); textureIndexList.Add(new Vector3Int(6, 20, 8));
+        faces.Add(new Vector3Int(4, 16, 17)); textureIndexList.Add(new Vector3Int(4, 24, 25));
+        faces.Add(new Vector3Int(6, 4, 17)); textureIndexList.Add(new Vector3Int(6, 4, 25));
+        faces.Add(new Vector3Int(6, 17, 20)); textureIndexList.Add(new Vector3Int(6, 25, 26));
+        faces.Add(new Vector3Int(6, 20, 8)); textureIndexList.Add(new Vector3Int(6, 26, 8));
     }
 
     private void AddNormals()
