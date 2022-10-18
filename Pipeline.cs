@@ -6,6 +6,7 @@ public class Pipeline : MonoBehaviour
 {
     Model model;
 
+    #region Matrix Variables
     float angle;
     Vector3 axis;
     Vector3 scale;
@@ -22,17 +23,20 @@ public class Pipeline : MonoBehaviour
     List<Vector3> _imageAfterTransform;
     List<Vector3> _imageAfterViewing;
     List<Vector3> _imageAfterProjection;
+    #endregion
 
     void Start()
     {
         model = new Model();
         model.CreateUnityGameObject();
-            
+
+        #region Matrix Methods
         TransformMatrix();
         ViewingMatrix();
         ProjectionMatrix();
         ProjectionByHand();
         EverythingMatrix();
+        #endregion
     }
 
     #region Matrixes
