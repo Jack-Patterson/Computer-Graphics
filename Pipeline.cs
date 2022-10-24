@@ -5,6 +5,7 @@ using UnityEngine;
 public class Pipeline : MonoBehaviour
 {
     Model model;
+    Outcode outcode;
 
     #region Matrix Variables
     float angle;
@@ -27,8 +28,10 @@ public class Pipeline : MonoBehaviour
 
     void Start()
     {
-        model = new Model();
+        #region Model
+        model = new();
         model.CreateUnityGameObject();
+        #endregion
 
         #region Matrix Methods
         TransformMatrix();
@@ -36,6 +39,14 @@ public class Pipeline : MonoBehaviour
         ProjectionMatrix();
         ProjectionByHand();
         EverythingMatrix();
+        #endregion
+
+        #region Clipping
+        outcode = new();
+
+        CompareAnd(new(new(0,0)), new(new(0,0)));
+        CompareOr();
+
         #endregion
     }
 
@@ -131,6 +142,30 @@ public class Pipeline : MonoBehaviour
             imageVertices.Add(matrix * v2);
         }
         return imageVertices;
+    }
+
+    #endregion
+
+    #region Clipping
+
+    private void CompareAnd(Outcode a, Outcode b)
+    {
+        Debug.Log((a * b).Print());
+    }
+
+    private void CompareOr()
+    {
+        outcode = new(new Vector2(-.1f, .4f));
+        Outcode outcode2 = new(new Vector2(-1, .4f));
+        //Debug.Log(Outcode.CompareAnd(outcode, outcode2));
+
+        outcode = new(new Vector2(.2f, 3f));
+        outcode2 = new(new Vector2(1.2f, 4f));
+        //Debug.Log(Outcode.CompareAnd(outcode, outcode2));
+
+        outcode = new();
+        outcode2 = new();
+        //Debug.Log(Outcode.CompareAnd(outcode, outcode2));
     }
 
     #endregion
