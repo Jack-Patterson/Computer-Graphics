@@ -44,8 +44,36 @@ public class Pipeline : MonoBehaviour
         #region Clipping
         outcode = new();
 
-        CompareAnd(new(new(0,0)), new(new(0,0)));
-        CompareOr();
+        #region AND and OR
+        /*CompareAnd(new(new(0,0)), new(new(0,0))); // In Screen
+        CompareAnd(new(new(-1.5f, 1.5f)), new(new(-2, 4))); // Top Left
+        CompareAnd(new(new(0, 2)), new(new(0, 5))); // Top Center
+        CompareAnd(new(new(2, 10)), new(new(4.64f, 1.002f))); // Top Right
+        CompareAnd(new(new(-4.5f, 0.5f)), new(new(-5, 0))); // Middle Left
+        CompareAnd(new(new(5.8f, .4f)), new(new(1.00001f, .0001f))); // Middle Right
+        CompareAnd(new(new(-1.5f, -3)), new(new(-10, -4.5f))); // Bottom Left
+        CompareAnd(new(new(0, -3)), new(new(-.55555f, -4))); // Bottom Center
+        CompareAnd(new(new(4, -4)), new(new(5, -5.556f))); // Bottom Right
+        CompareAnd(new(new(4, -.4f)), new(new(0.5f, -5.556f))); // Invalid AND*/
+
+
+        /*CompareOr(new(new(0, 0)), new(new(0, 0))); // In Screen
+        CompareOr(new(new(-1.5f, -1.5f)), new(new(-2, 4))); // Top Left
+        CompareOr(new(new(0, 2)), new(new(0, -5))); // Top Center
+        CompareOr(new(new(2, -10)), new(new(4.64f, 1.002f))); // Top Right
+        CompareOr(new(new(-4.5f, 0.5f)), new(new(-5, 0))); // Middle Left
+        CompareOr(new(new(5.8f, -.4f)), new(new(1.00001f, .0001f))); // Middle Right
+        CompareOr(new(new(-1.5f, -3)), new(new(-10, 4.5f))); // Bottom Left
+        CompareOr(new(new(0, 3)), new(new(-.55555f, -4))); // Bottom Center
+        CompareOr(new(new(4, -4)), new(new(-5, -5.556f))); // Bottom Right
+        CompareOr(new(new(4, -.4f)), new(new(0.5f, -5.556f))); // Valid OR*/
+        #endregion
+
+        Vector2 start = new(-5,-2), end = new(0.8f,-0.8f);
+        LineClip(ref start, ref end);
+
+        start = new(0.8f, -0.8f); end = new(-5, -2);
+        LineClip(ref start, ref end);
 
         #endregion
     }
@@ -148,25 +176,77 @@ public class Pipeline : MonoBehaviour
 
     #region Clipping
 
+    private bool LineClip(ref Vector2 start, ref Vector2 end)
+    {
+        Outcode startOutCode = new(start);
+        Outcode endOutCode = new(end);
+        Outcode inScreen = new();
+
+        if ((startOutCode + endOutCode) == inScreen)
+        {
+            return true;
+        }
+        if ((startOutCode * endOutCode) != inScreen)
+        {
+            return false;
+        }
+        
+        if (startOutCode == inScreen)
+        {
+            return LineClip(ref end, ref start);
+        }
+        
+        List<Vector2> points = IntersectEdge(start, end, startOutCode);
+        foreach (Vector2 v in points)
+        {
+            Outcode pointOutcode = new(v);
+            if (pointOutcode == inScreen)
+            {
+                start = v;
+                return LineClip(ref start, ref end);
+            }
+        }
+
+        return false;
+    }
+
+    private List<Vector2> IntersectEdge(Vector2 start, Vector2 end, Outcode pointOutcode)
+    {
+        float m = (end.y - start.y) / (end.x - start.x);
+        List<Vector2> intersections = new();
+
+
+        if (pointOutcode._up)
+        {
+            intersections.Add(new(start.x + (1 / m) * (1 - start.y), 1));
+        }
+        if (pointOutcode._down)
+        {
+            intersections.Add(new(start.x + (1 / m) * (-1 - start.y), -1));
+        }
+        if (pointOutcode._left)
+        {
+            intersections.Add(new(-1, start.y + m * (-1 - start.x)));
+        }
+        if(pointOutcode._right)
+        {
+            intersections.Add(new(1, start.y + m * (1 - start.x)));
+        }
+
+        return intersections;
+    }
+
+    #region AND and OR
     private void CompareAnd(Outcode a, Outcode b)
     {
         Debug.Log((a * b).Print());
     }
 
-    private void CompareOr()
+    private void CompareOr(Outcode a, Outcode b)
     {
-        outcode = new(new Vector2(-.1f, .4f));
-        Outcode outcode2 = new(new Vector2(-1, .4f));
-        //Debug.Log(Outcode.CompareAnd(outcode, outcode2));
-
-        outcode = new(new Vector2(.2f, 3f));
-        outcode2 = new(new Vector2(1.2f, 4f));
-        //Debug.Log(Outcode.CompareAnd(outcode, outcode2));
-
-        outcode = new();
-        outcode2 = new();
-        //Debug.Log(Outcode.CompareAnd(outcode, outcode2));
+        Debug.Log((a + b).Print());
     }
+    #endregion
 
     #endregion
 
