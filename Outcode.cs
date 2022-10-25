@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Outcode
 {
-    bool _up;
-    bool _down;
-    bool _left;
-    bool _right;
+    internal bool _up;
+    internal bool _down;
+    internal bool _left;
+    internal bool _right;
 
     #region Constructors and References
     internal Outcode(Vector2 v)
@@ -43,11 +43,9 @@ public class Outcode
 
     public static bool operator ==(Outcode a, Outcode b)
     {
-        bool isUpDown = (a._up || a._down) && (b._up || b._down);
-        bool isRightLeft = (a._right || a._left) && (b._right || b._left);
-
-        return isUpDown || isRightLeft;
+        return (a._up == b._up) && (a._down == b._down) && (a._left == b._left) && (a._right == b._right);
     }
+
     public static bool operator !=(Outcode a, Outcode b)
     {
         return !(a == b);
@@ -57,7 +55,6 @@ public class Outcode
     {
         return new Outcode(a._up || b._up, a._down || b._down, a._left || b._left, a._right || b._right);
     }
-
 
     public static Outcode operator *(Outcode a, Outcode b)
     {
