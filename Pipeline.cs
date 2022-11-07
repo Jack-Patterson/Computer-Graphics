@@ -69,11 +69,21 @@ public class Pipeline : MonoBehaviour
         CompareOr(new(new(4, -.4f)), new(new(0.5f, -5.556f))); // Valid OR*/
         #endregion
 
-        Vector2 start = new(-5,-2), end = new(0.8f,-0.8f);
-        LineClip(ref start, ref end);
+        #region Line Clip
 
-        start = new(0.8f, -0.8f); end = new(-5, -2);
-        LineClip(ref start, ref end);
+        TestLineClip(new(0.8f, -0.8f), new(0.2f, 0.3f), "Both in screen: ");
+        TestLineClip(new(0.8f, -0.8f), new(-10, -6), "One in screen (start point in screen): ");
+        TestLineClip(new(-5, -2), new(0.2f, 0.3f), "One in screen (end point in screen): ");
+        TestLineClip(new(-5, -2), new(-10, -6), "None in screen: ");
+        TestLineClip(new(5, 0.5f), new(-5, -0.5f), "None in screen but line is: ");
+
+        #endregion
+
+        #endregion
+
+        #region Rasterisation
+        
+
 
         #endregion
     }
@@ -84,7 +94,7 @@ public class Pipeline : MonoBehaviour
     {
         Matrix4x4 everythingMatrix = _projectionMatrix * _viewingMatrix * _transformMatrix;
         List<Vector3> imageAfterEverything = GetImage(model.vertices, everythingMatrix);
-        
+
         /*PrintToFileMatrix(everythingMatrix);
         PrintToFileVertices(imageAfterEverything);*/
     }
@@ -129,7 +139,7 @@ public class Pipeline : MonoBehaviour
 
     private void TransformMatrix()
     {
-        
+
 
         angle = -10;
         axis = new Vector3(16, 1, 1).normalized;
@@ -190,12 +200,12 @@ public class Pipeline : MonoBehaviour
         {
             return false;
         }
-        
+
         if (startOutCode == inScreen)
         {
             return LineClip(ref end, ref start);
         }
-        
+
         List<Vector2> points = IntersectEdge(start, end, startOutCode);
         foreach (Vector2 v in points)
         {
@@ -228,7 +238,7 @@ public class Pipeline : MonoBehaviour
         {
             intersections.Add(new(-1, start.y + m * (-1 - start.x)));
         }
-        if(pointOutcode._right)
+        if (pointOutcode._right)
         {
             intersections.Add(new(1, start.y + m * (1 - start.x)));
         }
@@ -288,6 +298,19 @@ public class Pipeline : MonoBehaviour
         }
         sw.Close();
     }
+
+    #endregion
+
+    #region Tests
+
+    #region Clipping
+
+    private void TestLineClip(Vector2 start, Vector2 end, string msg)
+    {
+        Debug.Log(msg + LineClip(ref start, ref end));
+    }
+
+    #endregion
 
     #endregion
 }
