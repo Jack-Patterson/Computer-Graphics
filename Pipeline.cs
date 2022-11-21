@@ -80,42 +80,26 @@ public class Pipeline : MonoBehaviour
         TestLineClip(new(5, 0.5f), new(-5, -0.5f), "None in screen but line is: ");*/
 
         #endregion
-        Vector2 start = new(.5f,.5f);
-        Vector2 end = new();
-
-        if (LineClip(ref start, ref end))
-        {
-            
-        }
+        
 
         #endregion
 
         #region Rasterisation
-        TestBresh(new(2, 4), new(8, 5), "-- Normal Bresh: --");
+        /*TestBresh(new(2, 4), new(8, 5), "-- Normal Bresh: --");
         TestBresh(new(8, 4), new(5, 5), "-- End x less than start x: --");
         TestBresh(new(2, 8), new(8, 5), "-- End y less than start y: --");
-        TestBresh(new(3, 3), new(8, 9), "-- dx less than dy: --");
+        TestBresh(new(3, 3), new(8, 9), "-- dx less than dy: --");*/
 
         screen = new Texture2D(256, 256);
         Renderer screenPlane = FindObjectOfType<Renderer>();
         screenPlane.material.mainTexture = screen;
         #endregion
 
-        
-    }
-
-    void Plot(List<Vector2Int> bresh)
-    {
-        foreach (Vector2Int v in bresh)
-        {
-            screen.SetPixel(v.x, v.y, Color.red);
-        }
-        screen.Apply();
-    }
-
-    void Convert (Vector2 v)
-    {
-
+        TestDrawLine(new(0.8f, -0.8f), new(0.2f, 0.3f)); // Both in Screen
+        TestDrawLine(new(0.8f, -0.8f), new(-10, -6)); // One in screen (start point in screen)
+        TestDrawLine(new(-5, -2), new(0.2f, 0.3f)); // One in screen (end point in screen)
+        TestDrawLine(new(-5, -2), new(-10, -6)); // None in screen
+        TestDrawLine(new(5, 0.5f), new(-5, -0.5f)); // None in screen but line is
     }
 
     #region Matrixes
@@ -351,6 +335,20 @@ public class Pipeline : MonoBehaviour
         return new(point.y, point.x);
     }
 
+    private void Plot(List<Vector2Int> bresh)
+    {
+        foreach (Vector2Int v in bresh)
+        {
+            screen.SetPixel(v.x, v.y, Color.red);
+        }
+        screen.Apply();
+    }
+
+    private Vector2Int Convert(Vector2 v)
+    {
+        return new Vector2Int((int)(255 * (v.x + 1) / 2), (int)(255 * (v.y + 1) / 2));
+    }
+
     #endregion
 
     #region Write to File
@@ -414,6 +412,14 @@ public class Pipeline : MonoBehaviour
         foreach (Vector2Int i in Bresh(start, end))
         {
             Debug.Log(i);
+        }
+    }
+
+    private void TestDrawLine(Vector2 start, Vector2 end)
+    {
+        if (LineClip(ref start, ref end))
+        {
+            Plot(Bresh(Convert(start), Convert(end)));
         }
     }
 
