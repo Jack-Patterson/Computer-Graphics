@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 public class Model
@@ -9,6 +10,8 @@ public class Model
     internal List<Vector2> textureCoordinates;
     internal List<Vector3Int> textureIndexList;
     internal List<Vector3> normals;
+
+    private Material _texture;
 
     public Model()
     {
