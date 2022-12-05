@@ -9,6 +9,8 @@ public class Pipeline : MonoBehaviour
 
     #region Matrix Variables
     float angle;
+    float z = 5f;
+
     Vector3 axis;
     Vector3 scale;
     Vector3 translation;
@@ -27,11 +29,12 @@ public class Pipeline : MonoBehaviour
     #endregion
 
     private Texture2D screen;
+    Renderer screenPlane;
 
     void Start()
     {
         #region Model
-        //model = new();
+        model = new();
         //model.CreateUnityGameObject();
         #endregion
 
@@ -91,18 +94,67 @@ public class Pipeline : MonoBehaviour
         TestBresh(new(3, 3), new(8, 9), "-- dx less than dy: --");*/
 
         screen = new Texture2D(256, 256);
-        Renderer screenPlane = FindObjectOfType<Renderer>();
+        screenPlane = FindObjectOfType<Renderer>();
         screenPlane.material.mainTexture = screen;
-        #endregion
 
-        TestDrawLine(new(0.8f, -0.8f), new(0.2f, 0.3f)); // Both in Screen
+        /*TestDrawLine(new(0.8f, -0.8f), new(0.2f, 0.3f)); // Both in Screen
         TestDrawLine(new(0.8f, -0.8f), new(-10, -6)); // One in screen (start point in screen)
         TestDrawLine(new(-5, -2), new(0.2f, 0.3f)); // One in screen (end point in screen)
         TestDrawLine(new(-5, -2), new(-10, -6)); // None in screen
-        TestDrawLine(new(5, 0.5f), new(-5, -0.5f)); // None in screen but line is
+        TestDrawLine(new(5, 0.5f), new(-5, -0.5f)); // None in screen but line is*/
+        #endregion
+    }
+
+    private void Update()
+    {
+        List<Vector3> imageAfter = GetImageAfter();
+
+        if (screen) Destroy(screen);
+        screen = new Texture2D(256, 256);
+        screenPlane.material.mainTexture = screen;
+
+        foreach (Vector3Int face in model.faces)
+        {
+            Vector3 a = imageAfter[face.y] - imageAfter[face.x];
+
+            Vector3 start = imageAfter[face.x];
+            Vector3 end = imageAfter[face.y];
+            Vector3 end2 = imageAfter[face.z];
+
+            Vector2 v1 = new(start.x / start.z, start.y / start.z);
+            Vector2 v2 = new(end.x / end.z, end.y / end.z);
+            Vector2 v3 = new(end2.x / end2.z, end2.y / end2.z);
+
+            if (Vector3.Cross(v2 - v1, v3 - v2).z > 0)
+            {
+                Vector2 average = (v1 + v2 + v3) / 3;
+                Fill((int) average.x, (int)average.y);
+                
+                DrawLine(imageAfter[face.x], imageAfter[face.y]);
+                DrawLine(imageAfter[face.y], imageAfter[face.z]);
+                DrawLine(imageAfter[face.z], imageAfter[face.x]);
+            }
+        }
+
+        screen.Apply();
     }
 
     #region Matrixes
+
+    private List<Vector3> GetImageAfter()
+    {
+        List<Vector3> vertices = model.vertices;
+        Matrix4x4 translate = Matrix4x4.TRS(new Vector3(0, 0, 10), Quaternion.identity, Vector3.one);
+        axis = new Vector3(16, 1, 1).normalized;
+        Matrix4x4 rotate = Matrix4x4.TRS(Vector3.zero, Quaternion.AngleAxis(angle, axis), Vector3.one);
+        Matrix4x4 projection = Matrix4x4.Perspective(90, 1, 1, 1000);
+
+        z += 0.5f;
+        angle++;
+        Matrix4x4 allTrans = projection * rotate * translate;
+
+        return GetImage(vertices, allTrans);
+    }
 
     private void EverythingMatrix()
     {
@@ -125,13 +177,14 @@ public class Pipeline : MonoBehaviour
         _imageAfterProjection = imageAfterProj;
     }
 
-    private void ProjectionByHand()
+    private List<Vector2> ProjectionByHand()
     {
         List<Vector2> projByHand = new List<Vector2>();
         foreach (Vector3 v in _imageAfterViewing)
         {
             projByHand.Add(new Vector2(v.x / v.z, v.y / v.z));
         }
+        return projByHand;
 
         //PrintToFile2d(projByHand);
     }
@@ -305,6 +358,31 @@ public class Pipeline : MonoBehaviour
         return hold;
     }
 
+    private void DrawLine(Vector3 start, Vector3 end)
+    {
+        if ((start.z < 0) && (end.z < 0))
+        {
+            Vector2 v1 = new(start.x / start.z, start.y / start.z);
+            Vector2 v2 = new(end.x / end.z, end.y / end.z);
+            if (LineClip(ref v1, ref v2))
+            {
+                Plot(Bresh(Convert(v1), Convert(v2)));
+            }
+        }
+    }
+
+    private void Fill(int x, int y)
+    {
+        if (screen.GetPixel(x, y) != Color.red)
+        {
+            screen.SetPixel(x, y, Color.red);
+            Fill(x + 1, y);
+            Fill(x - 1, y);
+            Fill(x, y + 1);
+            Fill(x, y - 2);
+        }
+    }
+
     private List<Vector2Int> NegY(List<Vector2Int> bresh)
     {
         List<Vector2Int> breshFixed = new();
@@ -341,6 +419,7 @@ public class Pipeline : MonoBehaviour
         {
             screen.SetPixel(v.x, v.y, Color.red);
         }
+        
         screen.Apply();
     }
 
@@ -427,3 +506,5 @@ public class Pipeline : MonoBehaviour
 
     #endregion
 }
+
+
