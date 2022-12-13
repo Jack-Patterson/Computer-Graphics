@@ -11,21 +11,13 @@ public class Pipeline : MonoBehaviour
     float angle;
     float z = 5f;
 
-    Vector3 axis;
-    Vector3 scale;
-    Vector3 translation;
+    Vector3 axis, scale, translation;
 
-    Vector3 camPos;
-    Vector3 camLookAt;
-    Vector3 camUp;
+    Vector3 camPos, camLookAt, camUp;
 
-    Matrix4x4 _transformMatrix;
-    Matrix4x4 _viewingMatrix;
-    Matrix4x4 _projectionMatrix;
+    Matrix4x4 _transformMatrix, _viewingMatrix, _projectionMatrix;
 
-    List<Vector3> _imageAfterTransform;
-    List<Vector3> _imageAfterViewing;
-    List<Vector3> _imageAfterProjection;
+    List<Vector3> _imageAfterTransform, _imageAfterViewing, _imageAfterProjection;
     #endregion
 
     private Texture2D screen;
@@ -47,7 +39,7 @@ public class Pipeline : MonoBehaviour
         #endregion
 
         #region Clipping
-        outcode = new();
+        //outcode = new();
 
         #region AND and OR
         /*CompareAnd(new(new(0,0)), new(new(0,0))); // In Screen
@@ -83,7 +75,7 @@ public class Pipeline : MonoBehaviour
         TestLineClip(new(5, 0.5f), new(-5, -0.5f), "None in screen but line is: ");*/
 
         #endregion
-        
+
 
         #endregion
 
@@ -93,46 +85,39 @@ public class Pipeline : MonoBehaviour
         TestBresh(new(2, 8), new(8, 5), "-- End y less than start y: --");
         TestBresh(new(3, 3), new(8, 9), "-- dx less than dy: --");*/
 
-        screen = new Texture2D(256, 256);
-        screenPlane = FindObjectOfType<Renderer>();
-        screenPlane.material.mainTexture = screen;
-
         /*TestDrawLine(new(0.8f, -0.8f), new(0.2f, 0.3f)); // Both in Screen
         TestDrawLine(new(0.8f, -0.8f), new(-10, -6)); // One in screen (start point in screen)
         TestDrawLine(new(-5, -2), new(0.2f, 0.3f)); // One in screen (end point in screen)
         TestDrawLine(new(-5, -2), new(-10, -6)); // None in screen
         TestDrawLine(new(5, 0.5f), new(-5, -0.5f)); // None in screen but line is*/
         #endregion
+
+        screenPlane = FindObjectOfType<Renderer>();
+        CreateScreen();
     }
 
     private void Update()
     {
         List<Vector3> imageAfter = GetImageAfter();
 
-        if (screen) Destroy(screen);
-        screen = new Texture2D(256, 256);
-        screenPlane.material.mainTexture = screen;
+        CreateScreen();
 
         foreach (Vector3Int face in model.faces)
         {
             Vector3 a = imageAfter[face.y] - imageAfter[face.x];
 
-            Vector3 start = imageAfter[face.x];
-            Vector3 end = imageAfter[face.y];
-            Vector3 end2 = imageAfter[face.z];
-
-            Vector2 v1 = new(start.x / start.z, start.y / start.z);
-            Vector2 v2 = new(end.x / end.z, end.y / end.z);
-            Vector2 v3 = new(end2.x / end2.z, end2.y / end2.z);
+            Vector2 v1 = DivideByZ(imageAfter[face.x]);
+            Vector2 v2 = DivideByZ(imageAfter[face.y]);
+            Vector2 v3 = DivideByZ(imageAfter[face.z]);
 
             if (Vector3.Cross(v2 - v1, v3 - v2).z > 0)
             {
-                Vector2 average = (v1 + v2 + v3) / 3;
-                Fill((int) average.x, (int)average.y);
-                
                 DrawLine(imageAfter[face.x], imageAfter[face.y]);
                 DrawLine(imageAfter[face.y], imageAfter[face.z]);
                 DrawLine(imageAfter[face.z], imageAfter[face.x]);
+
+                Vector2 average = new((v1.x + v2.x + v3.x) / 3, (v1.y + v2.y + v3.y) / 3);
+                //Fill((int) average.x, (int)average.y);
             }
         }
 
@@ -373,14 +358,29 @@ public class Pipeline : MonoBehaviour
 
     private void Fill(int x, int y)
     {
-        if (screen.GetPixel(x, y) != Color.red)
+        List<Vector2> pixels = new();
+        pixels.Add(new Vector2(x, y));
+        while(pixels.Count > 0)
         {
-            screen.SetPixel(x, y, Color.red);
-            Fill(x + 1, y);
-            Fill(x - 1, y);
-            Fill(x, y + 1);
-            Fill(x, y - 2);
+            Vector2 p = pixels[pixels.Count - 1];
+            pixels.RemoveAt(pixels.Count - 1);
+
+            if (CheckBounds(p)){
+                if (screen.GetPixel((int)p.x,(int)p.y) != Color.red)
+                {
+                    screen.SetPixel((int)p.x, (int)p.y, Color.red);
+                    pixels.Add(new Vector2(p.x + 1, p.y));
+                    pixels.Add(new Vector2(p.x - 1, p.y));
+                    pixels.Add(new Vector2(p.x, p.y + 1));
+                    pixels.Add(new Vector2(p.x, p.y - 1));
+                }
+            }
         }
+    }
+
+    private bool CheckBounds(Vector2 pixel)
+    {
+        return !((pixel.x < 0) || (pixel.x >= screen.width - 1) || (pixel.y < 0) || (pixel.y >= screen.height - 1));
     }
 
     private List<Vector2Int> NegY(List<Vector2Int> bresh)
@@ -429,6 +429,18 @@ public class Pipeline : MonoBehaviour
     }
 
     #endregion
+
+    private Vector2 DivideByZ(Vector3 input)
+    {
+        return new Vector2(input.x / input.z, input.y / input.z);
+    }
+
+    private void CreateScreen()
+    {
+        if (screen) Destroy(screen);
+        screen = new Texture2D(256, 256);
+        screenPlane.material.mainTexture = screen;
+    }
 
     #region Write to File
 
