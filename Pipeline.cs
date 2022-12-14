@@ -23,6 +23,8 @@ public class Pipeline : MonoBehaviour
     private Texture2D screen;
     Renderer screenPlane;
 
+    private Sprite bmp;
+
     void Start()
     {
         #region Model
@@ -116,8 +118,10 @@ public class Pipeline : MonoBehaviour
                 DrawLine(imageAfter[face.y], imageAfter[face.z]);
                 DrawLine(imageAfter[face.z], imageAfter[face.x]);
 
-                Vector2 average = new((v1.x + v2.x + v3.x) / 3, (v1.y + v2.y + v3.y) / 3);
-                //Fill((int) average.x, (int)average.y);
+                Vector2 average = new((imageAfter[face.x].x + imageAfter[face.y].x + imageAfter[face.z].x) / 3, 
+                    (imageAfter[face.x].y + imageAfter[face.y].y + imageAfter[face.z].y) / 3);
+                //FloodFill((int) average.x, (int)average.y); // kind of works but not fully.
+                //Is incredibly frames intensive so not working as intended.
             }
         }
 
@@ -356,31 +360,30 @@ public class Pipeline : MonoBehaviour
         }
     }
 
-    private void Fill(int x, int y)
+    private void FloodFill(int x, int y)
     {
-        List<Vector2> pixels = new();
-        pixels.Add(new Vector2(x, y));
+        Stack<Vector2Int> pixels = new();
+        pixels.Push(new Vector2Int(x, y));
         while(pixels.Count > 0)
         {
-            Vector2 p = pixels[pixels.Count - 1];
-            pixels.RemoveAt(pixels.Count - 1);
+            Vector2Int p = pixels.Pop();
 
             if (CheckBounds(p)){
-                if (screen.GetPixel((int)p.x,(int)p.y) != Color.red)
+                if (screen.GetPixel(p.x, p.y) != Color.red)
                 {
-                    screen.SetPixel((int)p.x, (int)p.y, Color.red);
-                    pixels.Add(new Vector2(p.x + 1, p.y));
-                    pixels.Add(new Vector2(p.x - 1, p.y));
-                    pixels.Add(new Vector2(p.x, p.y + 1));
-                    pixels.Add(new Vector2(p.x, p.y - 1));
+                    screen.SetPixel(p.x, p.y, Color.red);
+                    pixels.Push(new Vector2Int(p.x + 1, p.y));
+                    pixels.Push(new Vector2Int(p.x - 1, p.y));
+                    pixels.Push(new Vector2Int(p.x, p.y + 1));
+                    pixels.Push(new Vector2Int(p.x, p.y - 1));
                 }
             }
         }
     }
 
-    private bool CheckBounds(Vector2 pixel)
+    private bool CheckBounds(Vector2Int pixel)
     {
-        return !((pixel.x < 0) || (pixel.x >= screen.width - 1) || (pixel.y < 0) || (pixel.y >= screen.height - 1));
+        return (pixel.x < 0) || (pixel.x >= screen.width) || (pixel.y < 0) || (pixel.y >= screen.height);
     }
 
     private List<Vector2Int> NegY(List<Vector2Int> bresh)
@@ -420,7 +423,7 @@ public class Pipeline : MonoBehaviour
             screen.SetPixel(v.x, v.y, Color.red);
         }
         
-        screen.Apply();
+        //screen.Apply();
     }
 
     private Vector2Int Convert(Vector2 v)
